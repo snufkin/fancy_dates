@@ -1,0 +1,34 @@
+<?php
+
+function fancydate_theme() {
+  return array(
+    'fancydate' => array(
+      'arguments' => ('date' => NULL),
+      'template' => 'fancydate.tpl.php',
+    ),
+  );
+}
+
+function fancydate_fancydate($date) {
+}
+
+/**
+ * Formats calendar style dates for blog posts.
+ *
+ * @param $node
+ *   The node object from which to extract submitted date information.
+ * @return themed date.
+ *
+ * @todo Make a module for formatting fancy dates.
+ */
+function fancy_date($date) {
+  $timestamp = strtotime($date);
+
+  $output = '<div class="fancy-date">';
+  $output .= '<span class="day">' . format_date($timestamp, 'custom', "j") . '</span>';
+  $output .= '<span class="month">' . format_date($timestamp, 'custom', "M") . '</span>';
+  $output .= '<span class="year">' . format_date($timestamp, 'custom', "Y") . '</span>';
+  $output .= '</div>';
+
+  return $output;
+}
