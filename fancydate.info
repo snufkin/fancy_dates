@@ -1,0 +1,4 @@
+name = Fancydate
+description = Format a date to a nice user-friendly display.
+
+core = 6.x
