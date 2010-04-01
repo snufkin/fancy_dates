@@ -81,6 +81,59 @@ function fancydate_settings_form() {
   return system_settings_form($form);
 }
 
+function fancydate_form_alter(&$form, &$form_state, $form_id) {
+  if ('node_type_form' == $form_id) {
+    $type = $form['#node_type']->type;
+    $form = array();
+    $form['fancydate'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Fancydate'),
+      '#description' => t('Fancy date display'),
+      '#collapsible' => TRUE,
+    );
+
+    $form['fancydate']['fancydate_submitted'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Display the date as fancy format'),
+      '#default_value' => variable_get('fancydate_submitted_' . $type, TRUE),
+    );
+  }
+}
+
+/**
+ * Implementation of hook_content_extra_fields().
+ */
+function fancydate_content_extra_fields($type_name) {
+  $options = array('query' => drupal_get_destination(), 'fragment' => 'fancydate');
+  $link = l(t('Configure'), 'admin/content/node-type/' . $type_name, $options); 
+
+  $extras = array();
+  if (variable_get('fancydate_submitted_' . $type_name, TRUE)) {
+    $extras['fancydate_submitted'] = array(
+      'label' => t('Submitted on'),
+      'description' => t('Timestamp for the node.'),
+      'weight' => -5,
+      'configure' => $link,
+    );
+  }
+  return $extras;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function fancydate_nodeapi(&$node, $op, $teaser, $page) {
+  if ('view' == $op) {
+    if (variable_get('fancydate_submitted_' . $node->type, TRUE)) {
+      $weight = content_extra_field_weight($node->type, 'fancydate_submitted');
+      $node->content['fancydate_submitted'] = array(
+        '#weight' => !empty($weight) ? $weight : -5,
+        '#value' => theme('fancydate_timestamp', $node->created),
+      );
+    }
+  }
+}
+
 /**
  * Implementation of hook_theme().
  */
@@ -88,11 +141,11 @@ function fancydate_theme() {
   return array(
     'fancydate_timestamp' => array(
       'arguments' => array('timestamp' => NULL),
-      'template' => 'fancydate.tpl.php',
+      'template' => 'fancydate',
     ),
     'fancydate_string' => array(
       'arguments' => array('datestring' => NULL),
-      'template' => 'fancydate.tpl.php',
+      'template' => 'fancydate',
     ),
   );
 }
@@ -104,7 +157,7 @@ function fancydate_theme() {
  * Create a fancy date out of a timestamp.
  */
 function template_preprocess_fancydate_timestamp(&$variables) {
-  array_merge($variables, facy_date($variables['timestamp']));
+  array_merge($variables, fancy_date($variables['timestamp']));
 }
 
 /**
@@ -130,20 +183,3 @@ function fancy_date($timestamp) {
   );
 }
 
-/**
- * Implementation of hook_field_formatter_info().
- */
-function fancydate_field_formatter_info() {
-  $formatters = array();
-  $formatters['fancydate'] = array(
-    'label' => t('Fancydate'),
-    'field types' => array('date'),
-    'description' => t('Display a date field in fancy format.'),
-  );
-  return $formatters;
-}
-
-function theme_fancydate_formatter_fancydate($element) {
-  $date = $element['#value'];
-  return theme('fancydate_string', $date);
-}

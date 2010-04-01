@@ -1,4 +1,6 @@
 name = Fancydate
 description = Format a date to a nice user-friendly display.
 
+dependencies[] = content
+
 core = 6.x
