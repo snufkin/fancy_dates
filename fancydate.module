@@ -147,6 +147,10 @@ function fancydate_theme() {
       'arguments' => array('datestring' => NULL),
       'template' => 'fancydate',
     ),
+    'fancydate_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+      'function' => 'theme_fancydate_formatter_default',
+    ),
   );
 }
 
@@ -170,7 +174,7 @@ function template_preprocess_fancydate_string(&$variables) {
 
 /**
  * Take an integer timestamp and break it down to day, month and year.
- **/
+ */
 function fancy_date($timestamp) {
   $day_format = variable_get('fancydate_day', 'j');
   $month_format = variable_get('fancydate_motnh', 'M');
@@ -184,3 +188,25 @@ function fancy_date($timestamp) {
   return $date;
 }
 
+/**
+  * Implementation of hook_field_formatter_info().
+ */
+function fancydate_field_formatter_info() {
+  $formatters = array();
+  $formatters['default'] = array(
+    'label' => t('Fancydate'),
+    'field types' => array('date', 'date_format', 'created', 'changed'),
+  );
+  return $formatters;
+}
+
+/**
+ * Implementation of hook_field_formatter().
+ */
+function fancydate_field_formatter($field, $item, $formatter, $node) {
+}
+
+// TODO this is still not called.
+function theme_fancydate_formatter_default($element) {
+  dsm($element);
+}
