@@ -1,4 +1,5 @@
 <?php
+// $Id$
 /**
  * @file
  * Convert a timestamp into a nice date display.
@@ -10,27 +11,27 @@
 /**
  * Implementation of hook_perm().
  */
-function fancydate_perm() {
+function fancy_dates_perm() {
   return array(
-    'administer fancydate',
+    'administer fancy_dates',
   );
 }
     
 /**
  * Implementation of hook_menu().
  */
-function fancydate_menu() {
+function fancy_dates_menu() {
   $items = array();
-  $items['admin/settings/fancydate'] = array(
-    'title' => 'Fancydate settings',
+  $items['admin/settings/fancy_dates'] = array(
+    'title' => 'fancy_dates settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('fancydate_settings_form'),
-    'access arguments' => array('administer fancydate'),
+    'page arguments' => array('fancy_dates_settings_form'),
+    'access arguments' => array('administer fancy_dates'),
   );
   return $items;
 }
 
-function fancydate_settings_form() {
+function fancy_dates_settings_form() {
   $form = array();
   $options = array(
     'day' => array(
@@ -55,24 +56,24 @@ function fancydate_settings_form() {
     ),
   );
 
-  $form['fancydate'] = array(
+  $form['fancy_dates'] = array(
     '#title' => t('Date display'),
     '#type' => 'fieldset',
     '#tree' => TRUE,
   );
-  $form['fancydate']['day'] = array(
+  $form['fancy_dates']['day'] = array(
     '#title' => t('Day'),
     '#description' => t(''),
     '#type' => 'select',
     '#options' => $options['day'],
   );
-  $form['fancydate']['month'] = array(
+  $form['fancy_dates']['month'] = array(
     '#title' => t('Month'),
     '#description' => t(''),
     '#type' => 'select',
     '#options' => $options['month'],
   );
-  $form['fancydate']['year'] = array(
+  $form['fancy_dates']['year'] = array(
     '#title' => t('Year'),
     '#description' => t(''),
     '#type' => 'select',
@@ -81,20 +82,20 @@ function fancydate_settings_form() {
   return system_settings_form($form);
 }
 
-function fancydate_form_alter(&$form, &$form_state, $form_id) {
+function fancy_dates_form_alter(&$form, &$form_state, $form_id) {
   if ('node_type_form' == $form_id) {
     $type = $form['#node_type']->type;
-    $form['fancydate'] = array(
+    $form['fancy_dates'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Fancydate'),
+      '#title' => t('fancy_dates'),
       '#description' => t('Fancy date display'),
       '#collapsible' => TRUE,
     );
 
-    $form['fancydate']['fancydate_submitted'] = array(
+    $form['fancy_dates']['fancy_dates_submitted'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display the date as fancy format'),
-      '#default_value' => variable_get('fancydate_submitted_' . $type, TRUE),
+      '#default_value' => variable_get('fancy_dates_submitted_' . $type, TRUE),
     );
   }
 }
@@ -102,13 +103,13 @@ function fancydate_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Implementation of hook_content_extra_fields().
  */
-function fancydate_content_extra_fields($type_name) {
-  $options = array('query' => drupal_get_destination(), 'fragment' => 'fancydate');
+function fancy_dates_content_extra_fields($type_name) {
+  $options = array('query' => drupal_get_destination(), 'fragment' => 'fancy_dates');
   $link = l(t('Configure'), 'admin/content/node-type/' . $type_name, $options); 
 
   $extras = array();
-  if (variable_get('fancydate_submitted_' . $type_name, TRUE)) {
-    $extras['fancydate_submitted'] = array(
+  if (variable_get('fancy_dates_submitted_' . $type_name, TRUE)) {
+    $extras['fancy_dates_submitted'] = array(
       'label' => t('Submitted on'),
       'description' => t('Timestamp for the node.'),
       'weight' => -5,
@@ -121,14 +122,14 @@ function fancydate_content_extra_fields($type_name) {
 /**
  * Implementation of hook_nodeapi().
  */
-function fancydate_nodeapi(&$node, $op, $teaser, $page) {
+function fancy_dates_nodeapi(&$node, $op, $teaser, $page) {
   if ('view' == $op) {
-    if (variable_get('fancydate_submitted_' . $node->type, TRUE)) {
-      $weight = content_extra_field_weight($node->type, 'fancydate_submitted');
-      $created = theme('fancydate_timestamp', $node->created);
-      $node->content['fancydate_submitted'] = array(
+    if (variable_get('fancy_dates_submitted_' . $node->type, TRUE)) {
+      $weight = content_extra_field_weight($node->type, 'fancy_dates_submitted');
+      $created = theme('fancy_dates_timestamp', $node->created);
+      $node->content['fancy_dates_submitted'] = array(
         '#weight' => !empty($weight) ? $weight : -5,
-        '#value' => theme('fancydate_timestamp', $node->created),
+        '#value' => theme('fancy_dates_timestamp', $node->created),
       );
     }
   }
@@ -137,17 +138,17 @@ function fancydate_nodeapi(&$node, $op, $teaser, $page) {
 /**
  * Implementation of hook_theme().
  */
-function fancydate_theme() {
+function fancy_dates_theme() {
   return array(
-    'fancydate_timestamp' => array(
+    'fancy_dates_timestamp' => array(
       'arguments' => array('timestamp' => NULL),
-      'template' => 'fancydate',
+      'template' => 'fancy_dates',
     ),
-    'fancydate_string' => array(
+    'fancy_dates_string' => array(
       'arguments' => array('datestring' => NULL),
-      'template' => 'fancydate',
+      'template' => 'fancy_dates',
     ),
-    'fancydate_formatter_default' => array(
+    'fancy_dates_formatter_default' => array(
       'arguments' => array('element' => NULL),
     ),
   );
@@ -160,14 +161,14 @@ function fancydate_theme() {
 /**
  * Create a fancy date out of a timestamp.
  */
-function template_preprocess_fancydate_timestamp(&$variables) {
+function template_preprocess_fancy_dates_timestamp(&$variables) {
   $variables = array_merge($variables, fancy_date($variables['timestamp']));
 }
 
 /**
  * Create a fancy date out of a time string.
  */
-function template_preprocess_fancydate_string(&$variables) {
+function template_preprocess_fancy_dates_string(&$variables) {
   $timestamp = strtotime($variables['datestring']);
   $variables = array_merge($variables, fancy_date($timestamp));
 }
@@ -176,9 +177,9 @@ function template_preprocess_fancydate_string(&$variables) {
  * Take an integer timestamp and break it down to day, month and year.
  */
 function fancy_date($timestamp) {
-  $day_format = variable_get('fancydate_day', 'j');
-  $month_format = variable_get('fancydate_motnh', 'M');
-  $year_format = variable_get('fancydate_year', 'Y');
+  $day_format = variable_get('fancy_dates_day', 'j');
+  $month_format = variable_get('fancy_dates_motnh', 'M');
+  $year_format = variable_get('fancy_dates_year', 'Y');
 
   $date = array(
     'day' => format_date($timestamp, 'custom', $day_format),
@@ -191,16 +192,16 @@ function fancy_date($timestamp) {
 /**
   * Implementation of hook_field_formatter_info().
  */
-function fancydate_field_formatter_info() {
+function fancy_dates_field_formatter_info() {
   $formatters = array();
   $formatters['default'] = array(
-    'label' => t('Fancydate'),
+    'label' => t('fancy_dates'),
     'field types' => array('date', 'date_format', 'created', 'changed'),
   );
   return $formatters;
 }
 
-function theme_fancydate_formatter_default($element) {
-  return theme('fancydate_string', $element['#item']['value']);
+function theme_fancy_dates_formatter_default($element) {
+  return theme('fancy_dates_string', $element['#item']['value']);
 }
 
