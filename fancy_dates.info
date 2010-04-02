@@ -1,4 +1,5 @@
-name = Fancydate
+; $Id$
+name = Fancy Dates
 description = Format a date to a nice user-friendly display.
 
 dependencies[] = content
